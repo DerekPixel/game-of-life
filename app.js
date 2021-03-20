@@ -1,11 +1,10 @@
-var rows = 90;
-var cols = 160;
+var rows = 50;
+var cols = 50;
 
 var grid = make2DArray(rows, cols);
 
-var timer = setInterval(() => {
-  grid = updateGridValues(grid)
-}, 100);
+var timer;
+var isPlaying = false;
 
 
 // console.table(grid);
@@ -14,12 +13,29 @@ var mainDiv = document.getElementById('main');
 
 var canvas = document.createElement('canvas');
 canvas.id = 'mycanvas';
-canvas.width = 16 * 75;
-canvas.height = 9 * 75;
+canvas.width = 500;
+canvas.height = 500;
 canvas.style.backgroundColor = 'black';
 var ctx = canvas.getContext('2d');
 
+var button = document.createElement('button');
+button.textContent = 'play/pause';
+
+
 mainDiv.append(canvas);
+mainDiv.append(button);
+
+button.addEventListener('click', () => {
+  if(isPlaying) {
+    clearInterval(timer);
+    isPlaying = false;
+  } else {
+    timer = setInterval(() => {
+      grid = updateGridValues(grid)
+    }, 200);
+    isPlaying = true;
+  }
+})
 
 var xOffset = canvas.width / cols;
 var yOffset = canvas.height / rows;
@@ -50,7 +66,26 @@ function loop() {
   draw();
 }
 
+canvas.addEventListener('mousedown', (e) => {
+  placeCell(e);
+})
 
+
+function placeCell(e) {
+  var rect = canvas.getBoundingClientRect();
+  var mouseX = e.clientX - rect.left;
+  var mouseY = e.clientY - rect.top;
+
+  var col = Math.floor(mouseX / xOffset);
+  var row = Math.floor(mouseY / yOffset);
+
+  if(grid[row][col] === 1) {
+    grid[row][col] = 0;
+  } else if(grid[row][col] === 0) {
+    grid[row][col] = 1;
+  }
+
+}
 
 
 function make2DArray(rows, cols) {
@@ -64,9 +99,9 @@ function make2DArray(rows, cols) {
 
   for(var i = 0; i < arr.length; i++) {
     for(var j = 0; j < arr[i].length; j++) {
-      var oneOrZero = Math.random() > 0.8 ? 1 : 0;
-      arr[i][j] = oneOrZero;
-      oneOrZero ? ones+=1 : zeros+=1;
+      // var oneOrZero = Math.random() > 0.8 ? 1 : 0;
+      arr[i][j] = 0;
+      // oneOrZero ? ones+=1 : zeros+=1;
     }
   }
 
