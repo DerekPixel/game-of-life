@@ -18,14 +18,18 @@ canvas.height = 500;
 canvas.style.backgroundColor = 'black';
 var ctx = canvas.getContext('2d');
 
-var button = document.createElement('button');
-button.textContent = 'play/pause';
+var playButton = document.createElement('button');
+playButton.textContent = 'play/pause';
+
+var stepButton = document.createElement('button');
+stepButton.textContent = 'step';
 
 
 mainDiv.append(canvas);
-mainDiv.append(button);
+mainDiv.append(playButton);
+mainDiv.append(stepButton);
 
-button.addEventListener('click', () => {
+playButton.addEventListener('click', () => {
   if(isPlaying) {
     clearInterval(timer);
     isPlaying = false;
@@ -34,6 +38,15 @@ button.addEventListener('click', () => {
       grid = updateGridValues(grid)
     }, 200);
     isPlaying = true;
+  }
+})
+
+stepButton.addEventListener('click', () => {
+  if(isPlaying) {
+    clearInterval(timer);
+    isPlaying = false;
+  } else {
+    grid = updateGridValues(grid);
   }
 })
 
@@ -66,12 +79,20 @@ function loop() {
   draw();
 }
 
+var rowState, colState;
+
 canvas.addEventListener('mousedown', (e) => {
-  placeCell(e);
-})
+  handlePlaceCell(e);
+  canvas.addEventListener('mousemove', handlePlaceCell);
+});
 
+canvas.addEventListener('mouseup', () => {
+  canvas.removeEventListener('mousemove', handlePlaceCell);
+  rowState = undefined;
+  colState = undefined;
+});
 
-function placeCell(e) {
+function handlePlaceCell(e) {
   var rect = canvas.getBoundingClientRect();
   var mouseX = e.clientX - rect.left;
   var mouseY = e.clientY - rect.top;
@@ -79,6 +100,16 @@ function placeCell(e) {
   var col = Math.floor(mouseX / xOffset);
   var row = Math.floor(mouseY / yOffset);
 
+  if(rowState !== row || colState !== col) {
+    rowState = row;
+    colState = col;
+    placeCell(row, col);
+  }
+
+}
+
+function placeCell(row, col) {
+  
   if(grid[row][col] === 1) {
     grid[row][col] = 0;
   } else if(grid[row][col] === 0) {
