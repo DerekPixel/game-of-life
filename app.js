@@ -2,6 +2,7 @@ var rows = 50;
 var cols = 50;
 
 var grid = make2DArray(rows, cols);
+var nextGrid = make2DArray(rows, cols);
 
 var timer;
 var isPlaying = false;
@@ -24,10 +25,14 @@ playButton.textContent = 'play/pause';
 var stepButton = document.createElement('button');
 stepButton.textContent = 'step';
 
+var clearButton = document.createElement('button');
+clearButton.textContent = 'clear';
+
 
 mainDiv.append(canvas);
 mainDiv.append(playButton);
 mainDiv.append(stepButton);
+mainDiv.append(clearButton);
 
 playButton.addEventListener('click', () => {
   if(isPlaying) {
@@ -35,8 +40,8 @@ playButton.addEventListener('click', () => {
     isPlaying = false;
   } else {
     timer = setInterval(() => {
-      grid = updateGridValues(grid)
-    }, 200);
+      updateGridValues();
+    }, 100);
     isPlaying = true;
   }
 })
@@ -46,8 +51,14 @@ stepButton.addEventListener('click', () => {
     clearInterval(timer);
     isPlaying = false;
   } else {
-    grid = updateGridValues(grid);
+    updateGridValues();
   }
+})
+
+clearButton.addEventListener('click', () => {
+  isPlaying = false;
+  clearInterval(timer);
+  grid = make2DArray(rows, cols);
 })
 
 var xOffset = canvas.width / cols;
@@ -62,6 +73,7 @@ function draw() {
     for(var j = 0; j < grid[i].length; j++) {
       if(grid[i][j] === 1) {
         ctx.save();
+        // ctx.scale(5, 5);
         ctx.translate(j * xOffset, i * yOffset);
         ctx.beginPath();
         ctx.rect(0, 0, xOffset, yOffset)
@@ -115,13 +127,10 @@ function placeCell(row, col) {
   } else if(grid[row][col] === 0) {
     grid[row][col] = 1;
   }
-
 }
 
 
 function make2DArray(rows, cols) {
-
-  var ones = 0, zeros = 0;
 
   var arr = new Array(rows);
   for(var i = 0; i < arr.length; i++) {
@@ -132,7 +141,6 @@ function make2DArray(rows, cols) {
     for(var j = 0; j < arr[i].length; j++) {
       // var oneOrZero = Math.random() > 0.8 ? 1 : 0;
       arr[i][j] = 0;
-      // oneOrZero ? ones+=1 : zeros+=1;
     }
   }
 
@@ -163,29 +171,24 @@ function countNeighbors(grid, x, y) {
   return total;
 }
 
-function updateGridValues(grid){
+function updateGridValues(){
 
-  var newArr = new Array(rows);
-  for(var i = 0; i < newArr.length; i++) {
-    newArr[i] = new Array(cols);
-  }
-
-  for(var i = 0; i < newArr.length; i++) {
-    for(var j = 0; j < newArr[i].length; j++) {
+  for(var i = 0; i < nextGrid.length; i++) {
+    for(var j = 0; j < nextGrid[i].length; j++) {
       var state = grid[i][j];
 
       var neighbors = countNeighbors(grid, i, j);
 
       if(state === 0 && neighbors === 3) {
-        newArr[i][j] = 1;
+        nextGrid[i][j] = 1;
       } else if(state === 1 && (neighbors < 2 || neighbors > 3)) {
-        newArr[i][j] = 0;
+        nextGrid[i][j] = 0;
       } else {
-        newArr[i][j] = state;
+        nextGrid[i][j] = state;
       }
-
     }
   }
 
-  return newArr;
+  [grid, nextGrid] = [nextGrid, grid];
+
 }
