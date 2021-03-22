@@ -51,3 +51,67 @@ box-sizing: border-box;
 }
 /*#endregion*/
 
+h1 {
+  font-size: 56px;
+  border-bottom-width: 5px;
+  border-bottom-color: rgb(25, 25, 100);
+  border-bottom-style: solid;
+}
+
+a {
+  color: darkslategray;
+  text-decoration: none;
+}
+
+a:visited {
+  color: darkslategray;
+}
+
+body {
+  background-color: rgb(35, 35, 35);
+}
+
+header {
+  align-items: center;
+  background-color: rgba(20, 20, 20);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 10px 20px 10px;
+  margin: 5px 5px 30px 5px;
+}
+
+.creds-div {
+  display: flex;
+}
+
+.cred {
+  margin: 0 15px;
+}
+
+main {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#mycanvas {
+  background-color: black;
+  border: 10px solid rgb(25, 25, 100);
+  margin-bottom: 15px;
+}
+
+.button-div {
+  display: flex;
+  justify-content: center;
+  width: 500px;
+}
+
+button {
+  background-color: rgb(20, 20, 20);
+  border: 2px solid rgb(25, 25, 100);
+  color: white;
+  margin: 0 25px;
+  padding: 15px;
+}
