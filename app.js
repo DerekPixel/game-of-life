@@ -31,23 +31,25 @@
 
   var canvas = document.createElement('canvas');
   canvas.id = 'mycanvas';
-  canvas.width = 500;
-  canvas.height = 500;
-  canvas.style.backgroundColor = 'black';
+  canvas.width = 16 * 50;
+  canvas.height = 9 * 50;
   var ctx = canvas.getContext('2d');
 
+  var buttonDiv = document.createElement('div');
+  buttonDiv.className = 'button-div'
+
   var playButton = document.createElement('button');
-  playButton.textContent = 'play/pause';
+  playButton.textContent = 'PLAY/PAUSE';
 
   var stepButton = document.createElement('button');
-  stepButton.textContent = 'step';
+  stepButton.textContent = 'STEP';
 
   var clearButton = document.createElement('button');
-  clearButton.textContent = 'clear';
+  clearButton.textContent = 'CLEAR';
 
   //GLOBAL VARIABLES - a2.2
-  var rows = 50;
-  var cols = 50;
+  var rows = 45;
+  var cols = 80;
 
   var rowState, colState;
 
@@ -62,9 +64,10 @@
 
 //APPEND HTML ELEMENTS - b1
   mainDiv.append(canvas);
-  mainDiv.append(playButton);
-  mainDiv.append(stepButton);
-  mainDiv.append(clearButton);
+  buttonDiv.append(playButton);
+  buttonDiv.append(stepButton);
+  buttonDiv.append(clearButton);
+  mainDiv.append(buttonDiv);
 
 //INITIALIZE EVENT LISTENERS - c1
 
@@ -223,6 +226,10 @@
     var rect = canvas.getBoundingClientRect();
     var mouseX = e.clientX - rect.left;
     var mouseY = e.clientY - rect.top;
+
+    //this is to counteract the border width
+    mouseX -= 10;
+    mouseY -= 10;
 
     var col = Math.floor(mouseX / xOffset);
     var row = Math.floor(mouseY / yOffset);
