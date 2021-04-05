@@ -115,3 +115,44 @@ button {
   margin: 0 25px;
   padding: 15px;
 }
+
+.info {
+  display: flex;
+  flex-direction: row;
+  margin: 50px 0;
+}
+
+.info > .column > h2 {
+  border-bottom: 5px solid rgb(25, 25, 100);
+  font-size: 36px;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  /* width: fit-content;
+  width: -moz-fit-content; */
+}
+
+.info > .column > p {
+  line-height: 20px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}
+
+.controls {
+  background-color: rgb(20, 20, 20);
+  color: white;
+  height: 150px;
+  margin: 0 5px 0 10px;
+  padding: 15px;
+}
+
+.game-info {
+  background-color: rgb(20, 20, 20);
+  color: white;
+  margin: 0 10px 0 5px;
+  padding: 15px 15px 35px 15px;
+}
