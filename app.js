@@ -19,7 +19,7 @@
     e2.1 - make2DArray
     e2.2 - countNeighbors
     e2.3 - updateGridValues
-    e2.4 - placeCell
+    e2.4 - changeCellState
 */
 
 
@@ -33,6 +33,9 @@
   canvas.id = 'mycanvas';
   canvas.width = 16 * 50;
   canvas.height = 9 * 50;
+  canvas.oncontextmenu = (e) => {
+    e.preventDefault();
+  };
   var ctx = canvas.getContext('2d');
 
   var buttonDiv = document.createElement('div');
@@ -101,12 +104,12 @@
 
   //MOUSE LISTENERS - c2.2
   canvas.addEventListener('mousedown', (e) => {
-    placeCell(e);
-    canvas.addEventListener('mousemove', placeCell);
+    changeCellState(e);
+    canvas.addEventListener('mousemove', changeCellState);
   });
 
   canvas.addEventListener('mouseup', () => {
-    canvas.removeEventListener('mousemove', placeCell);
+    canvas.removeEventListener('mousemove', changeCellState);
     rowState = undefined;
     colState = undefined;
   });
@@ -222,7 +225,7 @@
   }
 
   //e2.4
-  function placeCell(e) {
+  function changeCellState(e) {
     var rect = canvas.getBoundingClientRect();
     var mouseX = e.clientX - rect.left;
     var mouseY = e.clientY - rect.top;
@@ -238,10 +241,10 @@
       rowState = row;
       colState = col;
 
-      if(grid[row][col] === 1) {
-        grid[row][col] = 0;
-      } else if(grid[row][col] === 0) {
+      if(e.buttons === 1) {
         grid[row][col] = 1;
+      } else if(e.buttons === 2) {
+        grid[row][col] = 0;
       }
     }
   }
