@@ -342,12 +342,20 @@ import makeNewSlider from './function.js';
   
   //e2.6
   function handleZoom(e) {
+
+    var rect = canvas.getBoundingClientRect();
+    var mouseX = e.clientX - rect.left;
+    var mouseY = e.clientY - rect.top;
   
     if(Math.sign(e.deltaY) === -1) {
       scale += 0.1;
+      dragOffset.x -= (normalize(mouseX, canvas.width, 0)) * (mouseX / (scale * 2));
+      dragOffset.y -= (normalize(mouseY, canvas.height, 0)) * (mouseY / (scale * 2));
     } else if(Math.sign(e.deltaY) === 1) {
       if(scale > 1) {
         scale -= 0.1;
+        // dragOffset.x -= (normalize(mouseX, canvas.width, 0)) * (mouseX / (scale));
+        // dragOffset.y -= (normalize(mouseY, canvas.height, 0)) * (mouseY / (scale));
     } else {
         scale = 1;
       }
@@ -379,4 +387,17 @@ import makeNewSlider from './function.js';
     if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
       dragOffset.y = canvas.height - (gridHeight * scale);
     }
+  }
+
+  // function normalize(val, max, min) {
+  //   //normalize between 0 and 1
+  //   return (val - min) / (max - min); 
+  // }
+
+  function normalize(input, max, min) {
+    //normalize between -1 and 1
+    var average      = (min + max) / 2;
+    var range        = (max - min) / 2;
+    var normalized_x = (input - average) / range;
+    return normalized_x;
   }
