@@ -21,6 +21,10 @@ import Vector from './Vector.js';
     e2.2 - countNeighbors
     e2.3 - updateGridValues
     e2.4 - changeCellState
+    e2.5 - handleDragMovement
+    e2.6 - handleZoom
+    e2.7 - disableScroll
+    e2.8 - keepCanvasContentInCanvasLimits
 */
 
 
@@ -52,8 +56,8 @@ import Vector from './Vector.js';
   clearButton.textContent = 'CLEAR';
 
   //GLOBAL VARIABLES - a2.2
-  var rows = 45;
-  var cols = 80;
+  var rows = 90;
+  var cols = 160;
 
   var rowState, colState;
 
@@ -123,7 +127,7 @@ import Vector from './Vector.js';
     
       startDrag = new Vector(mouseX, mouseY);
   
-      canvas.addEventListener('mousemove', move);
+      canvas.addEventListener('mousemove', handleDragMovement);
     } else {
       changeCellState(e);
       canvas.addEventListener('mousemove', changeCellState);
@@ -132,7 +136,7 @@ import Vector from './Vector.js';
 
   canvas.addEventListener('mouseup', () => {
     PreviousDragOffset = dragOffset;
-    canvas.removeEventListener('mousemove', move);
+    canvas.removeEventListener('mousemove', handleDragMovement);
 
     canvas.removeEventListener('mousemove', changeCellState);
     rowState = undefined;
@@ -146,14 +150,7 @@ import Vector from './Vector.js';
   loop();
   function draw() {
 
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ctx.translate(50, 50);
-    // ctx.save();
-    // ctx.scale(scaleX, scaleY);
-    // ctx.restore();
-    // ctx.translate(-5,-5);
 
     //DRAW CELLS - d2.1
     for(var i = 0; i < grid.length; i++) {
@@ -166,7 +163,6 @@ import Vector from './Vector.js';
           ctx.rect(0, 0, xOffset, yOffset)
           ctx.fillStyle = 'white';
           ctx.fill();
-          // ctx.translate(-j * xOffset, -i * yOffset);
           ctx.restore();
         }
       }
@@ -204,7 +200,7 @@ import Vector from './Vector.js';
 
     for(var i = 0; i < arr.length; i++) {
       for(var j = 0; j < arr[i].length; j++) {
-        // var oneOrZero = Math.random() > 0.8 ? 1 : 0;
+        // var oneOrZero = Math.random() > 0.99 ? 1 : 0;
         arr[i][j] = 0;
       }
     }
@@ -291,8 +287,8 @@ import Vector from './Vector.js';
     }
   }
 
-
-  function move(e) {
+  //e2.5
+  function handleDragMovement(e) {
     if(e.shiftKey && e.button === 0) {
       var rect = canvas.getBoundingClientRect();
       var mouseX = e.clientX - rect.left;
@@ -306,38 +302,34 @@ import Vector from './Vector.js';
     
       dragOffset = newDragOffset;
   
-      if(dragOffset.x >= 0) {
-        dragOffset.x = 0;
-      }
-  
-      if(dragOffset.x + (gridWidth * scale)  <= canvas.width) {
-        dragOffset.x = canvas.width - (gridWidth * scale);
-      }
-  
-      if(dragOffset.y >= 0) {
-        dragOffset.y = 0;
-      }
-  
-      if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
-        dragOffset.y = canvas.height - (gridHeight * scale);
-      }
+      keepCanvasContentInCanvasLimits();
     }
   }
   
+  //e2.6
   function handleZoom(e) {
   
     if(Math.sign(e.deltaY) === -1) {
-  
-      scale += 0.05;
-  
+      scale += 0.1;
     } else if(Math.sign(e.deltaY) === 1) {
       if(scale > 1) {
-        scale -= 0.05;
+        scale -= 0.1;
     } else {
         scale = 1;
       }
     }
   
+    keepCanvasContentInCanvasLimits();
+  }
+  
+  //e2.7
+  function disableScroll(e) {
+    handleZoom(e)
+    return e.preventDefault();
+  }
+
+  //e2.8
+  function keepCanvasContentInCanvasLimits() {
     if(dragOffset.x >= 0) {
       dragOffset.x = 0;
     }
@@ -353,10 +345,4 @@ import Vector from './Vector.js';
     if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
       dragOffset.y = canvas.height - (gridHeight * scale);
     }
-  
-  }
-  
-  function disableScroll(e) {
-    handleZoom(e)
-    return e.preventDefault();
   }
