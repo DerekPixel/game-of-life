@@ -51,6 +51,11 @@ box-sizing: border-box;
 }
 /*#endregion*/
 
+::selection {
+  color: rgb(25, 75, 150);
+  background-color: white;
+}
+
 h1 {
   font-size: 56px;
   border-bottom-width: 5px;
