@@ -1,4 +1,5 @@
 import Vector from './Vector.js';
+import makeNewSlider from './function.js';
 
 //CONTENTS
 /*
@@ -8,9 +9,10 @@ import Vector from './Vector.js';
   
   b1 - APPEND HTML ELEMENTS
 
-  c1 - INITIALIZE EVENT LISTENERS
+  c1 - INITIALIZE EVENT LISTENERS AND INPUTS
     c2.1 - BUTTON LISTENERS
     c2.2 - MOUSE LISTENERS
+    c2.3 - SLIDER INPUT
 
   d1 - DRAW TO THE CANVAS
     d2.1 - DRAW CELLS
@@ -36,8 +38,8 @@ import Vector from './Vector.js';
 
   var canvas = document.createElement('canvas');
   canvas.id = 'mycanvas';
-  canvas.width = 16 * 50;
   canvas.height = 9 * 50;
+  canvas.width = 16 * 50;
   canvas.oncontextmenu = (e) => {
     e.preventDefault();
   };
@@ -55,9 +57,13 @@ import Vector from './Vector.js';
   var clearButton = document.createElement('button');
   clearButton.textContent = 'CLEAR';
 
+  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 4);
+  rowsColsSlider.div.className = 'slider-div';
+  rowsColsSlider.slider.className = 'slider';
+
   //GLOBAL VARIABLES - a2.2
-  var rows = 90;
-  var cols = 160;
+  var rows = 9 * rowsColsSlider.slider.value;
+  var cols = 16 * rowsColsSlider.slider.value
 
   var rowState, colState;
 
@@ -86,9 +92,10 @@ import Vector from './Vector.js';
   buttonDiv.append(playButton);
   buttonDiv.append(stepButton);
   buttonDiv.append(clearButton);
+  buttonDiv.append(rowsColsSlider.div);
   mainDiv.append(buttonDiv);
 
-//INITIALIZE EVENT LISTENERS - c1
+//INITIALIZE EVENT LISTENERS AND INPUTS - c1
 
   //BUTTON LISTENERS - c2.1
   playButton.addEventListener('click', () => {
@@ -145,6 +152,33 @@ import Vector from './Vector.js';
 
   canvas.addEventListener('wheel', disableScroll);
 
+  //SLIDER INPUT - c2.3
+  rowsColsSlider.slider.oninput = () => {
+    rows = 9 * rowsColsSlider.slider.value;
+    cols = 16 * rowsColsSlider.slider.value
+
+    xOffset = canvas.width / cols;
+    yOffset = canvas.height / rows;
+  
+    gridWidth = xOffset * cols;
+    gridHeight = yOffset * rows;
+  
+    grid = make2DArray(rows, cols);
+    nextGrid = make2DArray(rows, cols);
+  
+    startDrag = new Vector(0, 0);
+    endDrag = new Vector(0, 0);
+  
+    dragOffset = endDrag.subtract(startDrag);
+    PreviousDragOffset = dragOffset;
+  
+    scale = 1;
+  
+    timer;
+    isPlaying = false;
+    clearInterval(timer);
+  }
+
 
 //DRAW TO THE CANVAS - d1
   loop();
@@ -200,7 +234,7 @@ import Vector from './Vector.js';
 
     for(var i = 0; i < arr.length; i++) {
       for(var j = 0; j < arr[i].length; j++) {
-        // var oneOrZero = Math.random() > 0.99 ? 1 : 0;
+        // var oneOrZero = Math.random() > 0.8 ? 1 : 0;
         arr[i][j] = 0;
       }
     }
