@@ -113,12 +113,17 @@ main {
   width: 500px;
 }
 
-button {
+button,
+.slider-div {
   background-color: rgb(20, 20, 20);
   border: 2px solid rgb(25, 25, 100);
   color: white;
   margin: 0 25px;
   padding: 15px;
+}
+
+.slider {
+  color: black;
 }
 
 .info {
@@ -150,14 +155,15 @@ button {
 .controls {
   background-color: rgb(20, 20, 20);
   color: white;
-  height: 150px;
-  margin: 0 5px 0 10px;
-  padding: 15px;
+  height: fit-content;
+  height: -moz-fit-content;
+  margin: 0 10px 0 20px;
+  padding: 15px 15px 35px 15px;
 }
 
 .game-info {
   background-color: rgb(20, 20, 20);
   color: white;
-  margin: 0 10px 0 5px;
+  margin: 0 20px 0 10px;
   padding: 15px 15px 35px 15px;
 }

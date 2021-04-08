@@ -1,4 +1,5 @@
 import Vector from './Vector.js';
+import makeNewSlider from './function.js';
 
 //CONTENTS
 /*
@@ -8,9 +9,10 @@ import Vector from './Vector.js';
   
   b1 - APPEND HTML ELEMENTS
 
-  c1 - INITIALIZE EVENT LISTENERS
+  c1 - INITIALIZE EVENT LISTENERS AND INPUTS
     c2.1 - BUTTON LISTENERS
     c2.2 - MOUSE LISTENERS
+    c2.3 - SLIDER INPUT
 
   d1 - DRAW TO THE CANVAS
     d2.1 - DRAW CELLS
@@ -21,6 +23,10 @@ import Vector from './Vector.js';
     e2.2 - countNeighbors
     e2.3 - updateGridValues
     e2.4 - changeCellState
+    e2.5 - handleDragMovement
+    e2.6 - handleZoom
+    e2.7 - disableScroll
+    e2.8 - keepCanvasContentInCanvasLimits
 */
 
 
@@ -32,8 +38,8 @@ import Vector from './Vector.js';
 
   var canvas = document.createElement('canvas');
   canvas.id = 'mycanvas';
-  canvas.width = 16 * 50;
   canvas.height = 9 * 50;
+  canvas.width = 16 * 50;
   canvas.oncontextmenu = (e) => {
     e.preventDefault();
   };
@@ -51,9 +57,13 @@ import Vector from './Vector.js';
   var clearButton = document.createElement('button');
   clearButton.textContent = 'CLEAR';
 
+  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 4);
+  rowsColsSlider.div.className = 'slider-div';
+  rowsColsSlider.slider.className = 'slider';
+
   //GLOBAL VARIABLES - a2.2
-  var rows = 45;
-  var cols = 80;
+  var rows = 9 * rowsColsSlider.slider.value;
+  var cols = 16 * rowsColsSlider.slider.value
 
   var rowState, colState;
 
@@ -82,9 +92,10 @@ import Vector from './Vector.js';
   buttonDiv.append(playButton);
   buttonDiv.append(stepButton);
   buttonDiv.append(clearButton);
+  buttonDiv.append(rowsColsSlider.div);
   mainDiv.append(buttonDiv);
 
-//INITIALIZE EVENT LISTENERS - c1
+//INITIALIZE EVENT LISTENERS AND INPUTS - c1
 
   //BUTTON LISTENERS - c2.1
   playButton.addEventListener('click', () => {
@@ -123,7 +134,7 @@ import Vector from './Vector.js';
     
       startDrag = new Vector(mouseX, mouseY);
   
-      canvas.addEventListener('mousemove', move);
+      canvas.addEventListener('mousemove', handleDragMovement);
     } else {
       changeCellState(e);
       canvas.addEventListener('mousemove', changeCellState);
@@ -132,7 +143,7 @@ import Vector from './Vector.js';
 
   canvas.addEventListener('mouseup', () => {
     PreviousDragOffset = dragOffset;
-    canvas.removeEventListener('mousemove', move);
+    canvas.removeEventListener('mousemove', handleDragMovement);
 
     canvas.removeEventListener('mousemove', changeCellState);
     rowState = undefined;
@@ -141,19 +152,39 @@ import Vector from './Vector.js';
 
   canvas.addEventListener('wheel', disableScroll);
 
+  //SLIDER INPUT - c2.3
+  rowsColsSlider.slider.oninput = () => {
+    rows = 9 * rowsColsSlider.slider.value;
+    cols = 16 * rowsColsSlider.slider.value
+
+    xOffset = canvas.width / cols;
+    yOffset = canvas.height / rows;
+  
+    gridWidth = xOffset * cols;
+    gridHeight = yOffset * rows;
+  
+    grid = make2DArray(rows, cols);
+    nextGrid = make2DArray(rows, cols);
+  
+    startDrag = new Vector(0, 0);
+    endDrag = new Vector(0, 0);
+  
+    dragOffset = endDrag.subtract(startDrag);
+    PreviousDragOffset = dragOffset;
+  
+    scale = 1;
+  
+    timer;
+    isPlaying = false;
+    clearInterval(timer);
+  }
+
 
 //DRAW TO THE CANVAS - d1
   loop();
   function draw() {
 
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ctx.translate(50, 50);
-    // ctx.save();
-    // ctx.scale(scaleX, scaleY);
-    // ctx.restore();
-    // ctx.translate(-5,-5);
 
     //DRAW CELLS - d2.1
     for(var i = 0; i < grid.length; i++) {
@@ -166,7 +197,6 @@ import Vector from './Vector.js';
           ctx.rect(0, 0, xOffset, yOffset)
           ctx.fillStyle = 'white';
           ctx.fill();
-          // ctx.translate(-j * xOffset, -i * yOffset);
           ctx.restore();
         }
       }
@@ -291,8 +321,8 @@ import Vector from './Vector.js';
     }
   }
 
-
-  function move(e) {
+  //e2.5
+  function handleDragMovement(e) {
     if(e.shiftKey && e.button === 0) {
       var rect = canvas.getBoundingClientRect();
       var mouseX = e.clientX - rect.left;
@@ -306,38 +336,34 @@ import Vector from './Vector.js';
     
       dragOffset = newDragOffset;
   
-      if(dragOffset.x >= 0) {
-        dragOffset.x = 0;
-      }
-  
-      if(dragOffset.x + (gridWidth * scale)  <= canvas.width) {
-        dragOffset.x = canvas.width - (gridWidth * scale);
-      }
-  
-      if(dragOffset.y >= 0) {
-        dragOffset.y = 0;
-      }
-  
-      if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
-        dragOffset.y = canvas.height - (gridHeight * scale);
-      }
+      keepCanvasContentInCanvasLimits();
     }
   }
   
+  //e2.6
   function handleZoom(e) {
   
     if(Math.sign(e.deltaY) === -1) {
-  
-      scale += 0.05;
-  
+      scale += 0.1;
     } else if(Math.sign(e.deltaY) === 1) {
       if(scale > 1) {
-        scale -= 0.05;
+        scale -= 0.1;
     } else {
         scale = 1;
       }
     }
   
+    keepCanvasContentInCanvasLimits();
+  }
+  
+  //e2.7
+  function disableScroll(e) {
+    handleZoom(e)
+    return e.preventDefault();
+  }
+
+  //e2.8
+  function keepCanvasContentInCanvasLimits() {
     if(dragOffset.x >= 0) {
       dragOffset.x = 0;
     }
@@ -353,10 +379,4 @@ import Vector from './Vector.js';
     if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
       dragOffset.y = canvas.height - (gridHeight * scale);
     }
-  
-  }
-  
-  function disableScroll(e) {
-    handleZoom(e)
-    return e.preventDefault();
   }
