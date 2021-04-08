@@ -1,3 +1,4 @@
+import Vector from './Vector.js';
 
 //CONTENTS
 /*
@@ -59,8 +60,19 @@
   var xOffset = canvas.width / cols;
   var yOffset = canvas.height / rows;
 
+  var gridWidth = xOffset * cols;
+  var gridHeight = yOffset * rows;
+
   var grid = make2DArray(rows, cols);
   var nextGrid = make2DArray(rows, cols);
+
+  var startDrag = new Vector(0, 0);
+  var endDrag = new Vector(0, 0);
+
+  var dragOffset = endDrag.subtract(startDrag);
+  var PreviousDragOffset = dragOffset;
+
+  var scale = 1;
 
   var timer;
   var isPlaying = false;
@@ -104,45 +116,72 @@
 
   //MOUSE LISTENERS - c2.2
   canvas.addEventListener('mousedown', (e) => {
-    changeCellState(e);
-    canvas.addEventListener('mousemove', changeCellState);
+    if(e.shiftKey && e.button === 0) {
+      var rect = canvas.getBoundingClientRect();
+      var mouseX = e.clientX - rect.left;
+      var mouseY = e.clientY - rect.top;
+    
+      startDrag = new Vector(mouseX, mouseY);
+  
+      canvas.addEventListener('mousemove', move);
+    } else {
+      changeCellState(e);
+      canvas.addEventListener('mousemove', changeCellState);
+    }
   });
 
   canvas.addEventListener('mouseup', () => {
+    PreviousDragOffset = dragOffset;
+    canvas.removeEventListener('mousemove', move);
+
     canvas.removeEventListener('mousemove', changeCellState);
     rowState = undefined;
     colState = undefined;
   });
 
+  canvas.addEventListener('wheel', disableScroll);
+
+
 //DRAW TO THE CANVAS - d1
   loop();
   function draw() {
+
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // ctx.translate(50, 50);
+    // ctx.save();
+    // ctx.scale(scaleX, scaleY);
+    // ctx.restore();
+    // ctx.translate(-5,-5);
 
     //DRAW CELLS - d2.1
     for(var i = 0; i < grid.length; i++) {
       for(var j = 0; j < grid[i].length; j++) {
         if(grid[i][j] === 1) {
           ctx.save();
-          ctx.translate(j * xOffset, i * yOffset);
+          ctx.translate(((j * xOffset) * scale) + dragOffset.x, ((i * yOffset) * scale) + dragOffset.y);
+          ctx.scale(scale, scale);
           ctx.beginPath();
           ctx.rect(0, 0, xOffset, yOffset)
           ctx.fillStyle = 'white';
           ctx.fill();
+          // ctx.translate(-j * xOffset, -i * yOffset);
           ctx.restore();
         }
       }
     }
 
     //DRAW THE BACKGROUND GRID - d2.2
+
     ctx.beginPath();
     ctx.lineWidth = 1;
     for(var i = 0; i < grid.length; i++) {
-      ctx.moveTo(0, i * xOffset);
-      ctx.lineTo(canvas.width, i * xOffset);
+      ctx.moveTo(0 + dragOffset.x, (i * xOffset * scale) + dragOffset.y);
+      ctx.lineTo(canvas.width - dragOffset.x, (i * xOffset * scale) + dragOffset.y);
       for(var j = 0; j < grid[i].length; j++) {
-        ctx.moveTo(j * yOffset, 0);
-        ctx.lineTo(j * yOffset, canvas.height);
+        ctx.moveTo((j * yOffset * scale) + dragOffset.x, 0 + dragOffset.y);
+        ctx.lineTo((j * yOffset * scale) + dragOffset.x, canvas.height - dragOffset.y);
       }
     }
     ctx.strokeStyle = 'rgb(25, 25, 25)';
@@ -234,8 +273,11 @@
     mouseX -= 10;
     mouseY -= 10;
 
-    var col = Math.floor(mouseX / xOffset);
-    var row = Math.floor(mouseY / yOffset);
+    mouseX -= dragOffset.x;
+    mouseY -= dragOffset.y;
+    
+    var col = Math.floor((mouseX / (xOffset)) / scale);
+    var row = Math.floor((mouseY / (yOffset)) / scale);
 
     if(rowState !== row || colState !== col) {
       rowState = row;
@@ -247,4 +289,74 @@
         grid[row][col] = 0;
       }
     }
+  }
+
+
+  function move(e) {
+    if(e.shiftKey && e.button === 0) {
+      var rect = canvas.getBoundingClientRect();
+      var mouseX = e.clientX - rect.left;
+      var mouseY = e.clientY - rect.top;
+    
+      endDrag = new Vector(mouseX, mouseY);
+    
+      var startAndEndDragDifference = endDrag.subtract(startDrag);
+    
+      var newDragOffset = PreviousDragOffset.add(startAndEndDragDifference)
+    
+      dragOffset = newDragOffset;
+  
+      if(dragOffset.x >= 0) {
+        dragOffset.x = 0;
+      }
+  
+      if(dragOffset.x + (gridWidth * scale)  <= canvas.width) {
+        dragOffset.x = canvas.width - (gridWidth * scale);
+      }
+  
+      if(dragOffset.y >= 0) {
+        dragOffset.y = 0;
+      }
+  
+      if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
+        dragOffset.y = canvas.height - (gridHeight * scale);
+      }
+    }
+  }
+  
+  function handleZoom(e) {
+  
+    if(Math.sign(e.deltaY) === -1) {
+  
+      scale += 0.05;
+  
+    } else if(Math.sign(e.deltaY) === 1) {
+      if(scale > 1) {
+        scale -= 0.05;
+    } else {
+        scale = 1;
+      }
+    }
+  
+    if(dragOffset.x >= 0) {
+      dragOffset.x = 0;
+    }
+  
+    if(dragOffset.x + (gridWidth * scale)  <= canvas.width) {
+      dragOffset.x = canvas.width - (gridWidth * scale);
+    }
+  
+    if(dragOffset.y >= 0) {
+      dragOffset.y = 0;
+    }
+  
+    if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
+      dragOffset.y = canvas.height - (gridHeight * scale);
+    }
+  
+  }
+  
+  function disableScroll(e) {
+    handleZoom(e)
+    return e.preventDefault();
   }
