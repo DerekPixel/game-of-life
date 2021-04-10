@@ -57,7 +57,7 @@ import makeNewSlider from './function.js';
   var clearButton = document.createElement('button');
   clearButton.textContent = 'CLEAR';
 
-  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 4);
+  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 3);
   rowsColsSlider.div.className = 'slider-div';
   rowsColsSlider.slider.className = 'slider';
 
@@ -72,6 +72,15 @@ import makeNewSlider from './function.js';
 
   var gridWidth = xOffset * cols;
   var gridHeight = yOffset * rows;
+
+  var prevgridwidth1 = gridWidth;
+  var prevgridwidth2 = gridHeight;
+
+  var rowCurrent;
+  var colCurrent;
+
+  var rowPrev;
+  var colPrev;
 
   var grid = make2DArray(rows, cols);
   var nextGrid = make2DArray(rows, cols);
@@ -234,8 +243,8 @@ import makeNewSlider from './function.js';
 
     for(var i = 0; i < arr.length; i++) {
       for(var j = 0; j < arr[i].length; j++) {
-        // var oneOrZero = Math.random() > 0.8 ? 1 : 0;
-        arr[i][j] = 0;
+        var oneOrZero = Math.random() > 0.8 ? 1 : 0;
+        arr[i][j] = oneOrZero;
       }
     }
     return arr;
@@ -339,18 +348,34 @@ import makeNewSlider from './function.js';
       keepCanvasContentInCanvasLimits();
     }
   }
+
   
   //e2.6
   function handleZoom(e) {
-  
-    if(Math.sign(e.deltaY) === -1) {
-      scale += 0.1;
-    } else if(Math.sign(e.deltaY) === 1) {
-      if(scale > 1) {
-        scale -= 0.1;
-    } else {
-        scale = 1;
-      }
+
+    var rect = canvas.getBoundingClientRect();
+    var mouseX = e.clientX - rect.left;
+    var mouseY = e.clientY - rect.top;
+
+    /*
+      The code below is from this Stackoverflow thread - 
+      https://stackoverflow.com/questions/49245168/zoom-in-out-at-mouse-position-in-canvas 
+      thank you Amir
+    */
+    var direction = e.deltaY > 0 ? -1 : 1;
+    var factor = 0.2;
+    var zoom = 1 * direction * factor;
+
+    var wx = (mouseX - dragOffset.x) / (canvas.width * scale);
+    var wy = (mouseY - dragOffset.y) / (canvas.height * scale);
+
+    dragOffset.x -= wx * canvas.width * zoom;
+    dragOffset.y -= wy * canvas.height * zoom;
+
+    scale += zoom;
+
+    if(scale < 1) {
+      scale = 1;
     }
   
     keepCanvasContentInCanvasLimits();
@@ -379,4 +404,17 @@ import makeNewSlider from './function.js';
     if(dragOffset.y + (gridHeight * scale) <= canvas.height) {
       dragOffset.y = canvas.height - (gridHeight * scale);
     }
+  }
+
+  // function normalize(val, max, min) {
+  //   //normalize between 0 and 1
+  //   return (val - min) / (max - min); 
+  // }
+
+  function normalize(input, max, min) {
+    //normalize between -1 and 1
+    var average      = (min + max) / 2;
+    var range        = (max - min) / 2;
+    var normalized_x = (input - average) / range;
+    return normalized_x;
   }
