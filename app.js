@@ -57,7 +57,7 @@ import makeNewSlider from './function.js';
   var clearButton = document.createElement('button');
   clearButton.textContent = 'CLEAR';
 
-  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 4);
+  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 1);
   rowsColsSlider.div.className = 'slider-div';
   rowsColsSlider.slider.className = 'slider';
 
@@ -72,6 +72,15 @@ import makeNewSlider from './function.js';
 
   var gridWidth = xOffset * cols;
   var gridHeight = yOffset * rows;
+
+  var prevgridwidth1 = gridWidth;
+  var prevgridwidth2 = gridHeight;
+
+  var rowCurrent;
+  var colCurrent;
+
+  var rowPrev;
+  var colPrev;
 
   var grid = make2DArray(rows, cols);
   var nextGrid = make2DArray(rows, cols);
@@ -234,8 +243,8 @@ import makeNewSlider from './function.js';
 
     for(var i = 0; i < arr.length; i++) {
       for(var j = 0; j < arr[i].length; j++) {
-        // var oneOrZero = Math.random() > 0.8 ? 1 : 0;
-        arr[i][j] = 0;
+        var oneOrZero = Math.random() > 0.8 ? 1 : 0;
+        arr[i][j] = oneOrZero;
       }
     }
     return arr;
@@ -339,6 +348,7 @@ import makeNewSlider from './function.js';
       keepCanvasContentInCanvasLimits();
     }
   }
+
   
   //e2.6
   function handleZoom(e) {
@@ -346,11 +356,37 @@ import makeNewSlider from './function.js';
     var rect = canvas.getBoundingClientRect();
     var mouseX = e.clientX - rect.left;
     var mouseY = e.clientY - rect.top;
+
+    if(rowPrev === undefined || colPrev === undefined) {
+      colPrev = Math.floor((mouseX / (xOffset)) / scale);
+      rowPrev = Math.floor((mouseY / (yOffset)) / scale);
+    }
+
+
   
     if(Math.sign(e.deltaY) === -1) {
       scale += 0.1;
-      dragOffset.x -= (normalize(mouseX, canvas.width, 0)) * (mouseX / (scale * 2));
-      dragOffset.y -= (normalize(mouseY, canvas.height, 0)) * (mouseY / (scale * 2));
+
+      colCurrent = Math.floor((mouseX / (xOffset)) / scale);
+      rowCurrent = Math.floor((mouseY / (yOffset)) / scale);
+
+      var colDiff = colPrev - colCurrent;
+      var rowDiff = rowPrev - rowCurrent;
+
+      var colOffset = colDiff * xOffset * scale;
+      var rowOffset = rowDiff * yOffset * scale;
+
+      if(colDiff === 0 || rowDiff === 0) {
+        dragOffset.x -= colOffset;
+        dragOffset.y -= rowOffset;  
+      }
+
+
+      colPrev = colCurrent;
+      rowPrev = rowCurrent;
+
+      console.log(rowOffset, colOffset);
+
     } else if(Math.sign(e.deltaY) === 1) {
       if(scale > 1) {
         scale -= 0.1;
