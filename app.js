@@ -57,7 +57,7 @@ import makeNewSlider from './function.js';
   var clearButton = document.createElement('button');
   clearButton.textContent = 'CLEAR';
 
-  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 1);
+  var rowsColsSlider = makeNewSlider('# of rows and cols', 1, 15, 3);
   rowsColsSlider.div.className = 'slider-div';
   rowsColsSlider.slider.className = 'slider';
 
@@ -357,44 +357,25 @@ import makeNewSlider from './function.js';
     var mouseX = e.clientX - rect.left;
     var mouseY = e.clientY - rect.top;
 
-    if(rowPrev === undefined || colPrev === undefined) {
-      colPrev = Math.floor((mouseX / (xOffset)) / scale);
-      rowPrev = Math.floor((mouseY / (yOffset)) / scale);
-    }
+    /*
+      The code below is from this Stackoverflow thread - 
+      https://stackoverflow.com/questions/49245168/zoom-in-out-at-mouse-position-in-canvas 
+      thank you Amir
+    */
+    var direction = e.deltaY > 0 ? -1 : 1;
+    var factor = 0.2;
+    var zoom = 1 * direction * factor;
 
+    var wx = (mouseX - dragOffset.x) / (canvas.width * scale);
+    var wy = (mouseY - dragOffset.y) / (canvas.height * scale);
 
-  
-    if(Math.sign(e.deltaY) === -1) {
-      scale += 0.1;
+    dragOffset.x -= wx * canvas.width * zoom;
+    dragOffset.y -= wy * canvas.height * zoom;
 
-      colCurrent = Math.floor((mouseX / (xOffset)) / scale);
-      rowCurrent = Math.floor((mouseY / (yOffset)) / scale);
+    scale += zoom;
 
-      var colDiff = colPrev - colCurrent;
-      var rowDiff = rowPrev - rowCurrent;
-
-      var colOffset = colDiff * xOffset * scale;
-      var rowOffset = rowDiff * yOffset * scale;
-
-      if(colDiff === 0 || rowDiff === 0) {
-        dragOffset.x -= colOffset;
-        dragOffset.y -= rowOffset;  
-      }
-
-
-      colPrev = colCurrent;
-      rowPrev = rowCurrent;
-
-      console.log(rowOffset, colOffset);
-
-    } else if(Math.sign(e.deltaY) === 1) {
-      if(scale > 1) {
-        scale -= 0.1;
-        // dragOffset.x -= (normalize(mouseX, canvas.width, 0)) * (mouseX / (scale));
-        // dragOffset.y -= (normalize(mouseY, canvas.height, 0)) * (mouseY / (scale));
-    } else {
-        scale = 1;
-      }
+    if(scale < 1) {
+      scale = 1;
     }
   
     keepCanvasContentInCanvasLimits();
