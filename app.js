@@ -61,6 +61,10 @@ import makeNewSlider from './function.js';
   rowsColsSlider.div.className = 'slider-div';
   rowsColsSlider.slider.className = 'slider';
 
+  var randomCheckbox = document.createElement('input');
+  randomCheckbox.type = 'checkbox';
+
+
   //GLOBAL VARIABLES - a2.2
   var rows = 9 * rowsColsSlider.slider.value;
   var cols = 16 * rowsColsSlider.slider.value
@@ -72,15 +76,6 @@ import makeNewSlider from './function.js';
 
   var gridWidth = xOffset * cols;
   var gridHeight = yOffset * rows;
-
-  var prevgridwidth1 = gridWidth;
-  var prevgridwidth2 = gridHeight;
-
-  var rowCurrent;
-  var colCurrent;
-
-  var rowPrev;
-  var colPrev;
 
   var grid = make2DArray(rows, cols);
   var nextGrid = make2DArray(rows, cols);
@@ -96,12 +91,15 @@ import makeNewSlider from './function.js';
   var timer;
   var isPlaying = false;
 
+  var isRandom = false;
+
 //APPEND HTML ELEMENTS - b1
   mainDiv.append(canvas);
   buttonDiv.append(playButton);
   buttonDiv.append(stepButton);
   buttonDiv.append(clearButton);
   buttonDiv.append(rowsColsSlider.div);
+  buttonDiv.append(randomCheckbox);
   mainDiv.append(buttonDiv);
 
 //INITIALIZE EVENT LISTENERS AND INPUTS - c1
@@ -160,6 +158,20 @@ import makeNewSlider from './function.js';
   });
 
   canvas.addEventListener('wheel', disableScroll);
+
+  randomCheckbox.addEventListener('click', (e) => {
+    if(randomCheckbox.checked) {
+      isRandom = true;
+      isPlaying = false;
+      clearInterval(timer);
+      grid = make2DArray(rows, cols);
+    } else {
+      isRandom = false;
+      isPlaying = false;
+      clearInterval(timer);
+      grid = make2DArray(rows, cols);
+    }
+  })
 
   //SLIDER INPUT - c2.3
   rowsColsSlider.slider.oninput = () => {
@@ -243,8 +255,13 @@ import makeNewSlider from './function.js';
 
     for(var i = 0; i < arr.length; i++) {
       for(var j = 0; j < arr[i].length; j++) {
-        var oneOrZero = Math.random() > 0.8 ? 1 : 0;
-        arr[i][j] = oneOrZero;
+        if(isRandom) {
+          var oneOrZero = Math.random() > 0.8 ? 1 : 0;
+          arr[i][j] = oneOrZero;
+        }
+        else {
+          arr[i][j] = 0;
+        }
       }
     }
     return arr;
