@@ -64,12 +64,12 @@ h1 {
 }
 
 a {
-  color: darkslategray;
+  color: darksalmon;
   text-decoration: none;
 }
 
 a:visited {
-  color: darkslategray;
+  color: darksalmon;
 }
 
 body {
@@ -83,7 +83,7 @@ header {
   display: flex;
   justify-content: space-between;
   padding: 10px 10px 20px 10px;
-  margin: 5px 5px 30px 5px;
+  margin: 5px 5px 20px 5px;
 }
 
 .creds-div {
@@ -107,23 +107,42 @@ main {
   margin-bottom: 15px;
 }
 
-.button-div {
+.input-div {
   display: flex;
   justify-content: center;
   width: 500px;
 }
 
+button {
+  cursor: pointer;
+  font-weight: bold;
+}
+
 button,
-.slider-div {
+.slider-div,
+.checkbox-div {
   background-color: rgb(20, 20, 20);
   border: 2px solid rgb(25, 25, 100);
   color: white;
   margin: 0 25px;
   padding: 15px;
+  transition: 0.2s color;
+  transition: 0.2s background-color;
 }
 
 .slider {
   color: black;
+  cursor: pointer;
+}
+
+.checkbox {
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: white;
+  color: rgb(20, 20, 20);
+  font-weight: bold;
 }
 
 .info {
@@ -166,4 +185,24 @@ button,
   color: white;
   margin: 0 20px 0 10px;
   padding: 15px 15px 35px 15px;
+}
+
+.game-info-info h3 {
+  border-bottom: 5px solid rgb(25, 25, 100);
+  font-size: 24px;
+  margin: 20px 0 15px 0;
+  padding: 0 0 5px 0;
+  width: fit-content;
+  width: -moz-fit-content;
+}
+
+.game-info-info li {
+  line-height: 20px;
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 15px 0 15px 10px;
+}
+
+.game-info-info p {
+  margin: 25px 0 0 0 ;
 }
