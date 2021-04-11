@@ -1,5 +1,5 @@
 import Vector from './Vector.js';
-import makeNewSlider from './function.js';
+import {makeNewSlider, makeNewCheckbox} from './function.js';
 
 //CONTENTS
 /*
@@ -45,8 +45,8 @@ import makeNewSlider from './function.js';
   };
   var ctx = canvas.getContext('2d');
 
-  var buttonDiv = document.createElement('div');
-  buttonDiv.className = 'button-div'
+  var inputDiv = document.createElement('div');
+  inputDiv.className = 'input-div'
 
   var playButton = document.createElement('button');
   playButton.textContent = 'PLAY/PAUSE';
@@ -61,8 +61,9 @@ import makeNewSlider from './function.js';
   rowsColsSlider.div.className = 'slider-div';
   rowsColsSlider.slider.className = 'slider';
 
-  var randomCheckbox = document.createElement('input');
-  randomCheckbox.type = 'checkbox';
+  var randomCheckbox = makeNewCheckbox('Randomize Cells', false);
+  randomCheckbox.div.className = 'checkbox-div';
+  randomCheckbox.checkbox.className = 'checkbox';
 
 
   //GLOBAL VARIABLES - a2.2
@@ -95,12 +96,12 @@ import makeNewSlider from './function.js';
 
 //APPEND HTML ELEMENTS - b1
   mainDiv.append(canvas);
-  buttonDiv.append(playButton);
-  buttonDiv.append(stepButton);
-  buttonDiv.append(clearButton);
-  buttonDiv.append(rowsColsSlider.div);
-  buttonDiv.append(randomCheckbox);
-  mainDiv.append(buttonDiv);
+  inputDiv.append(playButton);
+  inputDiv.append(stepButton);
+  inputDiv.append(clearButton);
+  inputDiv.append(rowsColsSlider.div);
+  inputDiv.append(randomCheckbox.div);
+  mainDiv.append(inputDiv);
 
 //INITIALIZE EVENT LISTENERS AND INPUTS - c1
 
@@ -132,6 +133,20 @@ import makeNewSlider from './function.js';
     grid = make2DArray(rows, cols);
   })
 
+  randomCheckbox.checkbox.addEventListener('click', () => {
+    if(randomCheckbox.checkbox.checked) {
+      isRandom = true;
+      isPlaying = false;
+      clearInterval(timer);
+      grid = make2DArray(rows, cols);
+    } else {
+      isRandom = false;
+      isPlaying = false;
+      clearInterval(timer);
+      grid = make2DArray(rows, cols);
+    }
+  })
+
   //MOUSE LISTENERS - c2.2
   canvas.addEventListener('mousedown', (e) => {
     if(e.shiftKey && e.button === 0) {
@@ -159,19 +174,6 @@ import makeNewSlider from './function.js';
 
   canvas.addEventListener('wheel', disableScroll);
 
-  randomCheckbox.addEventListener('click', (e) => {
-    if(randomCheckbox.checked) {
-      isRandom = true;
-      isPlaying = false;
-      clearInterval(timer);
-      grid = make2DArray(rows, cols);
-    } else {
-      isRandom = false;
-      isPlaying = false;
-      clearInterval(timer);
-      grid = make2DArray(rows, cols);
-    }
-  })
 
   //SLIDER INPUT - c2.3
   rowsColsSlider.slider.oninput = () => {
@@ -428,10 +430,10 @@ import makeNewSlider from './function.js';
   //   return (val - min) / (max - min); 
   // }
 
-  function normalize(input, max, min) {
-    //normalize between -1 and 1
-    var average      = (min + max) / 2;
-    var range        = (max - min) / 2;
-    var normalized_x = (input - average) / range;
-    return normalized_x;
-  }
+  // function normalize(input, max, min) {
+  //   //normalize between -1 and 1
+  //   var average      = (min + max) / 2;
+  //   var range        = (max - min) / 2;
+  //   var normalized_x = (input - average) / range;
+  //   return normalized_x;
+  // }
