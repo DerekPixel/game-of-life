@@ -16,4 +16,26 @@ export function makeNewSlider(name, min, max, value) {
   return {div, slider}
 }
 
-export default makeNewSlider;
+export function makeNewCheckbox(name, checked = Boolean) {
+  var div = document.createElement('div');
+
+  var label = document.createElement('label');
+  label.textContent = `${name}: `;
+
+  var checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  if(checked) {
+    checkbox.checked = 'checked';
+  } else {
+    checkbox.checked = '';
+  }
+
+  div.append(label);
+  div.append(checkbox);
+
+  return {div, checkbox}
+}
+
+export default () => {
+  return 'what is up pimp?';
+};
