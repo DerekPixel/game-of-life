@@ -38,8 +38,11 @@ import {makeNewSlider, makeNewCheckbox} from './function.js';
 
   var canvas = document.createElement('canvas');
   canvas.id = 'mycanvas';
-  canvas.height = 9 * 50;
-  canvas.width = 16 * 50;
+  canvas.width = window.visualViewport.width * 0.8;
+  canvas.height = canvas.width;
+
+  console.log(canvas.height, canvas.width)
+
   canvas.oncontextmenu = (e) => {
     e.preventDefault();
   };
@@ -67,12 +70,12 @@ import {makeNewSlider, makeNewCheckbox} from './function.js';
 
 
   //GLOBAL VARIABLES - a2.2
-  var rows = 9 * rowsColsSlider.slider.value;
+  var rows = 16 * rowsColsSlider.slider.value;
   var cols = 16 * rowsColsSlider.slider.value
 
   var rowState, colState;
 
-  var xOffset = canvas.width / cols;
+  var xOffset = canvas.width / rows;
   var yOffset = canvas.height / rows;
 
   var gridWidth = xOffset * cols;
@@ -177,7 +180,7 @@ import {makeNewSlider, makeNewCheckbox} from './function.js';
 
   //SLIDER INPUT - c2.3
   rowsColsSlider.slider.oninput = () => {
-    rows = 9 * rowsColsSlider.slider.value;
+    rows = 16 * rowsColsSlider.slider.value;
     cols = 16 * rowsColsSlider.slider.value
 
     xOffset = canvas.width / cols;
@@ -229,14 +232,22 @@ import {makeNewSlider, makeNewCheckbox} from './function.js';
 
     ctx.beginPath();
     ctx.lineWidth = 1;
+
     for(var i = 0; i < grid.length; i++) {
+
       ctx.moveTo(0 + dragOffset.x, (i * xOffset * scale) + dragOffset.y);
+
       ctx.lineTo(canvas.width - dragOffset.x, (i * xOffset * scale) + dragOffset.y);
+
       for(var j = 0; j < grid[i].length; j++) {
+
         ctx.moveTo((j * yOffset * scale) + dragOffset.x, 0 + dragOffset.y);
+
         ctx.lineTo((j * yOffset * scale) + dragOffset.x, canvas.height - dragOffset.y);
       }
+
     }
+
     ctx.strokeStyle = 'rgb(25, 25, 25)';
     ctx.stroke();
   }
